@@ -2,15 +2,18 @@ import os
 import pickle
 import mediapipe as mp
 import cv2
+import matplotlib.pyplot as plt
 
 mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
+mp_drawing_styles = mp.solutions.drawing_styles
 
 hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.3)
 
 DATA_DIR = './mydataset'
 
-data_dict = {}  # Dictionary to store hand landmarks and labels
-
+data = []
+labels = []
 for dir_ in os.listdir(DATA_DIR):
     for img_path in os.listdir(os.path.join(DATA_DIR, dir_)):
         data_aux = []
@@ -37,11 +40,9 @@ for dir_ in os.listdir(DATA_DIR):
                     data_aux.append(x - min(x_))
                     data_aux.append(y - min(y_))
 
-            # Add hand landmarks and label to data dictionary
-            if dir_ not in data_dict:
-                data_dict[dir_] = []
-            data_dict[dir_].append(data_aux)
+            data.append(data_aux)
+            labels.append(dir_)
 
-# Serialize the data dictionary directly into a pickle file
-with open('data.pickle', 'wb') as f:
-    pickle.dump(data_dict, f)
+f = open('data.pickle', 'wb')
+pickle.dump({'data': data, 'labels': labels}, f)
+f.close()
